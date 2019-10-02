@@ -4,8 +4,13 @@
 
 import numpy as np
 
+# возвращает значении функции в точке x
 def function(x):
+    #return 2*x**2 - 12*x
     return x**3 + 6*(x**2) - 10 * x + 6
+
+def function_first_derivative(x):
+    return 3*x**2 + 12*x - 10
 
 # метод равномерного поиска
 def first_method(a, b, N):
@@ -77,7 +82,7 @@ def fourth_method(a, b, l, e):
 
     length = b - a
     fibonachi_numbers = find_fibonachi(length, l)
-    N = len(fibonachi_numbers)
+    N = len(fibonachi_numbers) - 1
 
     k = 0
     y = a + (b - a) * fibonachi_numbers[N - 2] / fibonachi_numbers[N]
@@ -94,13 +99,24 @@ def fourth_method(a, b, l, e):
             a = y
             y = z
             z = a + (b - a) * fibonachi_numbers[N - k - 2] / fibonachi_numbers[N - k - 1]  
-        k += 1
-        length = b - a
+        
         # last calculating
-        if length <= l:
-            if k != N - 3
-            
-    return 0, 0
+        if k == N - 3:
+            f_y = function(y)
+            z = y + e
+            f_z = function(z)
+            if f_y <= f_z:
+                b = z
+                z = y
+                y = a + (b - a) * fibonachi_numbers[N - k - 3] / fibonachi_numbers[N - k - 1]
+            else:
+                a = y
+                y = z
+                z = a + (b - a) * fibonachi_numbers[N - k - 2] / fibonachi_numbers[N - k - 1]  
+        length = b - a  
+        k += 1
+    x_answer = (a + b) / 2
+    return x_answer, function(x_answer)
 
 def find_fibonachi(length, l):
     # 1, 1, 2, 3, 5, 8, 13, ... 
@@ -117,6 +133,27 @@ def find_fibonachi(length, l):
     return fibonachi_numbers
 
 
+# метод градиентного спуска с постоянным шагом
+def gradient(x0, t_k, e, e1, e2, M):
+    # градиент функции в точке x0
+    x_ = x0
+    k = 0
+    grad_f = function_first_derivative(x_)
+    while abs(grad_f) > e1 and k < M:
+        x = x_ - t_k * grad_f
+        f_x = function(x)
+        f_x_ = function(x_)
+        if f_x - f_x_ < 0:
+            if abs(x - x_) < e2 and abs(f_x - f_x_) < e2:
+                return x, function(x)
+            else:
+                grad_f = function_first_derivative(x)
+                x_ = x
+        else:
+            t_k = t_k / 2
+        k += 1
+    return x, function(x)
+
 def main():
     print ('result of first method:')
     x, y = first_method(-5, 2, 2000)
@@ -131,7 +168,11 @@ def main():
     print ('x = ',x,', y = ',y)    
 
     print ('result of fourth method:')
-    x, y = fourth_method(-5, 2, 0.001, 5)
+    x, y = fourth_method(-5, 2, 0.001, 0.0001)
+    print ('x = ',x,', y = ',y)   
+
+    print ('method of grdient downgrade')
+    x, y = gradient(0, 0.0001, 0.0001, 0.0001, 0.0001, 10000)
     print ('x = ',x,', y = ',y)   
 
 if __name__ == '__main__':
